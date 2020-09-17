@@ -4,3 +4,5 @@ Generates random unique(all cards are different) poker hand based on the number 
 with pastable card names
 
 e.g. localhost:8081/5 generates random hand consisting of 5 cards.
+
+![Alt text](example/example.png?raw=true)
