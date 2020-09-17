@@ -215,7 +215,7 @@ pub fn convert_number_to_cardnames(cardnumbers: Vec<usize>) -> String {
 }
 
 fn main() {
-    let server = Server::http("0.0.0.0:8080").unwrap();    
+    let server = Server::http("0.0.0.0:8081").unwrap();    
 
     for request in server.incoming_requests() {
         convert_number_to_cardnames(Vec::new());
@@ -261,7 +261,7 @@ mod tests {
 
     #[test]
     fn turn_cardnumber_into_string() {
-        convert_number_to_cardname(Vec::new());
+        convert_number_to_cardnames(Vec::new());
     }
 
     #[test]
