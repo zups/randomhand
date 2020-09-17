@@ -8,4 +8,4 @@ COPY src/. ./src/
 
 RUN cargo build --release
 
-CMD ["./target/release/imageuploader"]
+CMD ["./target/release/randomhand"]
