@@ -303,18 +303,24 @@ fn main() {
         } else { 
             println!("(Path: {}\n From: {})", request.url(), request.remote_addr());
 
-            let howmanycards: usize = match path.parse::<usize>() {
+            let allowcardparameter = false;
+
+            if allowcardparameter {
+                let howmanycards: usize = match path.parse::<usize>() {
                 Ok(number) => number,
                 Err(E) => 0,
             };
-
+            
             if howmanycards == 0 || howmanycards >= numberofcards {
                 request.respond(Response::from_string("Invalid number of cards.")); 
             } else {
                 send_html_card_response(request, generate_unique_numbervector(Vec::new(), numberofcards, howmanycards));
             }
+        } else {
+             send_html_card_response(request, generate_unique_numbervector(Vec::new(), numberofcards, 4));
         }
     }
+}
 }
 
 
