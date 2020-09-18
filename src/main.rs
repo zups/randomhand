@@ -136,8 +136,8 @@ fn get_file(path: &str) -> Result<File, String> {
 fn card_response(request: Request) {
     let path = String::from(&request.url()[1..]);
     match get_file(&path) {
-        Ok(file) => request.respond(Response::from_file(file)).unwrap(),
-        Err(err) => request.respond(Response::from_string(err)).unwrap(),
+        Ok(file) => request.respond(Response::from_file(file)),
+        Err(err) => request.respond(Response::from_string(err)),
     };
 }
 
@@ -189,7 +189,7 @@ pub fn send_html_card_response(request: Request, cardnumbers: Vec<usize>) {
         None,
     );
     
-    request.respond(response).unwrap();
+    request.respond(response);
 }
 
 pub fn convert_number_to_cardnames(cardnumbers: Vec<usize>) -> String {
@@ -234,7 +234,7 @@ fn main() {
             };
 
             if howmanycards == 0 || howmanycards >= numberofcards {
-                request.respond(Response::from_string("Invalid number of cards.")).unwrap(); 
+                request.respond(Response::from_string("Invalid number of cards.")); 
             } else {
                 send_html_card_response(request, generate_unique_numbervector(Vec::new(), numberofcards, howmanycards));
             }
