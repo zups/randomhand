@@ -8,7 +8,28 @@ use strum_macros::{EnumIter, EnumString, EnumProperty};
 use strum::IntoEnumIterator;
 use strum::EnumProperty;
 use std::str::FromStr;
+use std::io::BufReader;
+use std::io::prelude::*;
+use std::str;
+use itertools::Itertools;
+#[macro_use]
+extern crate lazy_static;
 
+lazy_static! {
+    static ref FI15: Vec<String> = read_ranges_into_vector("hands/fi15.txt");
+    static ref FI20: Vec<String> = read_ranges_into_vector("hands/fi20.txt");
+    static ref FI25: Vec<String> = read_ranges_into_vector("hands/fi25.txt");
+    static ref FI30: Vec<String> = read_ranges_into_vector("hands/fi30.txt");
+    static ref FI40: Vec<String> = read_ranges_into_vector("hands/fi40.txt");
+}
+
+enum Range {
+    FI15,
+    FI20,
+    FI25,
+    FI40,
+    FI30,
+}
 
 #[derive(EnumIter, Debug, EnumString, EnumProperty)]
 enum Cards {
@@ -162,6 +183,44 @@ pub fn generate_unique_numbervector(generated_numbers: Vec<usize>, treshold_exlu
     generate_unique_numbervector(vec, treshold_exluded, size)
 }
 
+fn read_ranges_into_vector(rangename: &str) -> Vec<String> {
+    let file = get_file(rangename).unwrap();
+    let mut buf_reader = BufReader::new(file);
+
+    let mut contents = String::new();
+    buf_reader.read_to_string(&mut contents).unwrap();
+  
+    let vector: Vec<String> = contents.split_ascii_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
+
+    vector
+}
+
+fn is_hand_in_range(handpermutations: &Vec<String>, range: Range) -> bool {
+    match range {
+        Range::FI15 => handpermutations.iter().filter(|hand| FI15.contains(hand)).count() > 0,
+        Range::FI20 => handpermutations.iter().filter(|hand| FI20.contains(hand)).count() > 0,
+        Range::FI25 => handpermutations.iter().filter(|hand| FI25.contains(hand)).count() > 0,
+        Range::FI30 => handpermutations.iter().filter(|hand| FI30.contains(hand)).count() > 0,
+        Range::FI40 => handpermutations.iter().filter(|hand| FI40.contains(hand)).count() > 0,
+    }
+}
+
+fn handpermutations(hand: &str) -> Vec<String> {
+    let cards = hand.as_bytes()
+    .chunks(2)
+    .map(str::from_utf8)
+    .collect::<Result<Vec<&str>, _>>()
+    .unwrap();
+
+    let mut hands = Vec::new();
+
+    for hand in cards.into_iter().permutations(4) {
+        hands.push(hand.into_iter().map(|i| i.to_string()).collect::<String>());
+    }
+
+    hands
+}
+
 pub fn send_html_card_response(request: Request, cardnumbers: Vec<usize>) {
     let mut htmlstring = String::new();
     
@@ -171,8 +230,17 @@ pub fn send_html_card_response(request: Request, cardnumbers: Vec<usize>) {
         htmlstring.push_str(" ");
     }
 
+    let hand = convert_number_to_cardnames(cardnumbers);
+    let hands = handpermutations(&hand);
 
-    htmlstring.push_str(&format!("<p>{}</p>", convert_number_to_cardnames(cardnumbers)));
+    htmlstring.push_str(&format!("<p><b>utg:</b> {:?}</p>",is_hand_in_range(&hands, Range::FI15)));
+    htmlstring.push_str(&format!("<p><b>mp:</b> {:?}</p>", is_hand_in_range(&hands, Range::FI20)));
+    htmlstring.push_str(&format!("<p><b>co:</b> {:?}</p>", is_hand_in_range(&hands, Range::FI25)));
+    htmlstring.push_str(&format!("<p><b>bu:</b> {:?}</p>", is_hand_in_range(&hands, Range::FI40)));
+    htmlstring.push_str(&format!("<p><b>sb:</b> {:?}</p>", is_hand_in_range(&hands, Range::FI30)));
+
+
+    htmlstring.push_str(&format!("<p>{}</p>", &hand));
     htmlstring.push_str("<form action=\"\" method=\"get\">");
     htmlstring.push_str("<input type=\"submit\" value=\"New hand\">");
     htmlstring.push_str("</form>");
@@ -241,9 +309,6 @@ fn main() {
         }
     }
 }
-
-
-
 
 
 #[cfg(test)]
