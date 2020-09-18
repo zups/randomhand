@@ -221,6 +221,13 @@ fn handpermutations(hand: &str) -> Vec<String> {
     hands
 }
 
+fn true_false_to_open_fold(binary: bool) -> String {
+    match binary {
+        true => String::from("<b><font color=\"green\" size=\"+1\">open</font></b>"),
+        false => String::from("<b><font color=\"red\" size=\"+1\">fold</font></b>"),
+    }
+} 
+
 pub fn send_html_card_response(request: Request, cardnumbers: Vec<usize>) {
     let mut htmlstring = String::new();
     
@@ -233,11 +240,11 @@ pub fn send_html_card_response(request: Request, cardnumbers: Vec<usize>) {
     let hand = convert_number_to_cardnames(cardnumbers);
     let hands = handpermutations(&hand);
 
-    htmlstring.push_str(&format!("<p><b>utg:</b> {:?}</p>",is_hand_in_range(&hands, Range::FI15)));
-    htmlstring.push_str(&format!("<p><b>mp:</b> {:?}</p>", is_hand_in_range(&hands, Range::FI20)));
-    htmlstring.push_str(&format!("<p><b>co:</b> {:?}</p>", is_hand_in_range(&hands, Range::FI25)));
-    htmlstring.push_str(&format!("<p><b>bu:</b> {:?}</p>", is_hand_in_range(&hands, Range::FI40)));
-    htmlstring.push_str(&format!("<p><b>sb:</b> {:?}</p>", is_hand_in_range(&hands, Range::FI30)));
+    htmlstring.push_str(&format!("<p><b>UTG</b><font size=\"2\">(15%)</font><b>:</b> {}</p>",true_false_to_open_fold(is_hand_in_range(&hands, Range::FI15))));
+    htmlstring.push_str(&format!("<p><b>MP</b><font size=\"2\">(20%)</font><b>:</b> {}</p>", true_false_to_open_fold(is_hand_in_range(&hands, Range::FI20))));
+    htmlstring.push_str(&format!("<p><b>CO</b><font size=\"2\">(25%)</font><b>:</b> {}</p>", true_false_to_open_fold(is_hand_in_range(&hands, Range::FI25))));
+    htmlstring.push_str(&format!("<p><b>BU</b><font size=\"2\">(40%)</font><b>:</b> {}</p>", true_false_to_open_fold(is_hand_in_range(&hands, Range::FI40))));
+    htmlstring.push_str(&format!("<p><b>SB</b><font size=\"2\">(30%)</font><b>:</b> {}</p>", true_false_to_open_fold(is_hand_in_range(&hands, Range::FI30))));
 
 
     htmlstring.push_str(&format!("<p>{}</p>", &hand));
